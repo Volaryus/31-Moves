@@ -17,6 +17,15 @@ public class Player : MonoBehaviour
     Collider2D collider;
     Rigidbody2D rb;
 
+    [SerializeField]
+    GameObject deathParticle;
+    [SerializeField]
+    AudioClip deathSound;
+    [SerializeField]
+    AudioClip jumpSound;
+    [SerializeField]
+    AudioSource audioSource;
+
     bool moveLeft = false;
     bool moveRight = false;
     bool canJump = true;
@@ -31,6 +40,7 @@ public class Player : MonoBehaviour
         collider = GetComponent<Collider2D>();
         rb = GetComponent<Rigidbody2D>();
         startPos = transform.position;
+        startX = transform.position.x;
     }
 
     // Update is called once per frame
@@ -39,16 +49,16 @@ public class Player : MonoBehaviour
         if (moveLeft)
         {
             Debug.Log("Moving Left");
-            transform.position = Vector3.MoveTowards(transform.position, new Vector3(startX - moveX, transform.position.y, transform.position.z), 0.04f);
-            if (transform.position.x <= startX - moveX)
+            transform.position = Vector3.MoveTowards(transform.position, new Vector3(startX /*- moveX*/, transform.position.y, transform.position.z), 0.04f);
+            if (transform.position.x <= startX /*- moveX*/)
             {
                 moveLeft = false;
             }
         }
         if (moveRight)
         {
-            transform.position = Vector3.MoveTowards(transform.position, new Vector3(startX + moveX, transform.position.y, transform.position.z), 0.04f);
-            if (transform.position.x >= startX + moveX)
+            transform.position = Vector3.MoveTowards(transform.position, new Vector3(startX /*+ moveX*/, transform.position.y, transform.position.z), 0.04f);
+            if (transform.position.x >= startX /*+ moveX*/)
             {
                 moveRight = false;
             }
@@ -63,9 +73,14 @@ public class Player : MonoBehaviour
             //Activate retry button(Death screen)
             return;
         }
+        if(Physics2D.Raycast(transform.position, Vector3.right, 0.1f + collider.bounds.extents.x, groundLayer))
+        {
+            return;
+        }
         currentMove--;
         moveRight = true;
-        startX = transform.position.x;
+        // startX = transform.position.x;
+        startX += moveX;
     }
 
     public void MoveLeft()
@@ -76,8 +91,13 @@ public class Player : MonoBehaviour
             //Activate retry button(Death screen)
             return;
         }
+        if(Physics2D.Raycast(transform.position, Vector3.left, 0.1f + collider.bounds.extents.x, groundLayer))
+        {
+            return;
+        }
         currentMove--;
-        startX = transform.position.x;
+        // startX = transform.position.x;
+        startX -= moveX;
         moveLeft = true;
     }
 
@@ -110,6 +130,7 @@ public class Player : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Obstacle"))
         {
+            deathParticle.SetActive(true);
             moveRight = false;
             moveLeft = false;
             transform.position = startPos;

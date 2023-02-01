@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.SceneManagement;
 public class LevelManager : MonoBehaviour
 {
     int level;
@@ -24,7 +24,7 @@ public class LevelManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     public void LevelUp(int number)
@@ -33,6 +33,15 @@ public class LevelManager : MonoBehaviour
         {
             level = number;
             PlayerPrefs.SetInt("Level", level);
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            LevelUp(level);
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
         }
     }
 }
